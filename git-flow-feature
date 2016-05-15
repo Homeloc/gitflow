@@ -46,7 +46,7 @@ init() {
 usage() {
 	echo "usage: git flow feature [list] [-v]"
 	echo "       git flow feature start [-F] <name> [<base>]"
-	echo "       git flow feature finish [-rFkDS] [<name|nameprefix>]"
+	echo "       git flow feature finish [-rFkDSo] [<name|nameprefix>]"
 	echo "       git flow feature publish <name>"
 	echo "       git flow feature track <name>"
 	echo "       git flow feature diff [<name|nameprefix>]"
@@ -235,11 +235,18 @@ cmd_finish() {
 	DEFINE_boolean keep false "keep branch after performing finish" k
 	DEFINE_boolean force_delete false "force delete feature branch after finish" D
 	DEFINE_boolean squash false "squash feature during merge" S
+	DEFINE_boolean nosafeguard false "omit safeguard tests" o
 	parse_args "$@"
 	expand_nameprefix_arg_or_current
 
 	# sanity checks
 	require_branch "$BRANCH"
+
+	# safeguard checks
+
+	if flag nosafeguard; then
+		require_passing_safeguard
+	fi
 
 	# detect if we're restoring from a merge conflict
 	if [ -f "$DOT_GIT_DIR/.gitflow/MERGE_BASE" ]; then

@@ -324,3 +324,14 @@ require_branches_equal() {
 		fi
 	fi
 }
+
+require_passing_safeguard() {
+	local safeguard=$(git config --get gitflow.safeguard)
+	if [ "$safeguard" != "" ]; then
+		eval "$safeguard"
+		local status=$?
+		if [ $status -gt 0 ]; then
+			die "safeguard did not validate"
+		fi
+	fi
+}
